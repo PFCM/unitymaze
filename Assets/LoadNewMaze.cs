@@ -7,7 +7,7 @@ public class LoadNewMaze : MonoBehaviour {
 		GameObject newMaze = (GameObject)Instantiate (Resources.Load ("maze"), 
 		            								  this.transform.parent.position + new Vector3(45,0,-50), 
 		             								  Quaternion.identity);
-		BaseRoom other = newMaze.GetComponent<BaseRoom> ();
-		vector3 v = other.GetDoorPosition (); // hurray?
+		BaseRoom newMazeBase = newMaze.GetComponent<BaseRoom> ();
+		vector3 v = other.GetDoorPosition (); // hurray?	
 	}
 }
