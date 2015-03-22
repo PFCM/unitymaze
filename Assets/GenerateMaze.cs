@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Escape;
 
-public class GenerateMaze : MonoBehaviour {
+public class GenerateMaze : BaseRoom {
 	private enum Direction : byte {
 		NONE  = 0,
 		NORTH = 1,

@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\BallController.cs" />
+     <Compile Include="Assets\BaseRoom.cs" />
      <Compile Include="Assets\CameraController.cs" />
      <Compile Include="Assets\GenerateMaze.cs" />
      <Compile Include="Assets\LoadNewMaze.cs" />
