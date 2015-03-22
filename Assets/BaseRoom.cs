@@ -15,7 +15,7 @@ namespace Escape {
 		}
 
 		public Vector3 GetDoorPosition () {
-			return null;
+			return new Vector3(0,0,0);
 		}
 	}
 }
