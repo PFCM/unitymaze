@@ -46,6 +46,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\AICharacterController.cs" />
      <Compile Include="Assets\BallController.cs" />
      <Compile Include="Assets\BaseRoom.cs" />
      <Compile Include="Assets\CameraController.cs" />

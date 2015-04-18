@@ -2,7 +2,7 @@
 using System.Collections;
 
 namespace Escape {
-	public class BaseRoom : MonoBehaviour {
+	public abstract class BaseRoom : MonoBehaviour {
 
 		// Use this for initialization
 		void Start () {
@@ -14,8 +14,7 @@ namespace Escape {
 	
 		}
 
-		public Vector3 GetDoorPosition () {
-			return new Vector3(0,0,0);
-		}
+		// Override this!
+		abstract public Transform GetEntrance ();
 	}
 }

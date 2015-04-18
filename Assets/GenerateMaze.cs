@@ -280,4 +280,11 @@ public class GenerateMaze : BaseRoom {
 			return null;
 		}
 	}
+
+	// Overriden from BaseRoom
+	// returns the cube in the left corner
+	// this is important for sorting out the off-mesh links necessary to join up the NavMeshes
+	public override Transform GetEntrance () {
+		return transform.Find ("Entrance");
+	}
 }
