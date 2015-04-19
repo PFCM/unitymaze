@@ -38,13 +38,13 @@ public class SpiderController : MonoBehaviour {
 			grounded = false;
 		} else if (Input.GetButtonDown ("Bump")) {
 			// if a pickup is nearby, bump it
-			Debug.Log("bump");
+			//Debug.Log("bump");
 
 			Bump(GetObjectInFront());
 
 		} else if (Input.GetButtonDown ("PickUp")) {
 			// if a pickup is nearby pick it up
-			Debug.Log("pickup");
+			//Debug.Log("pickup");
 			GameObject item = GetObjectInFront ();
 			if (item == null) { // chuck the last one
 				Chuck();
@@ -71,7 +71,7 @@ public class SpiderController : MonoBehaviour {
 
 	// updates the gui, handy to call when altering the inventory one way or another
 	void UpdateGUI() {
-		countText.GetComponent<Text> ().text = String.Format("{0}",inventory.Count);
+		countText.GetComponent<Text> ().text = new String('O', inventory.Count);
 	}
 
 	void Pickup(GameObject item) {
@@ -88,19 +88,11 @@ public class SpiderController : MonoBehaviour {
 		grounded = true;
 	}
 
-	/*void OnTriggerEnter(Collider other) {
-		if (other.gameObject.tag.Equals ("pickup")) {
-			++pickups;
-			other.gameObject.SetActive(false);
-			countText.GetComponent<Text> ().text = String.Format("{0}",pickups);
-		}
-	}*/
-
 	// bumps an object
 	private void Bump(GameObject toBump) {
 		if (toBump != null) {
-			Vector3 force = Quaternion.AngleAxis(75, Vector3.left) * Vector3.forward;
-			force = transform.TransformDirection(force) * 300;
+			Vector3 force = Quaternion.AngleAxis(75, Vector3.Cross(transform.forward, transform.up)) * transform.forward;
+			force = force * 300;
 			toBump.GetComponent<Rigidbody> ().AddForce(force);
 		}
 	}
@@ -110,19 +102,22 @@ public class SpiderController : MonoBehaviour {
 	private GameObject GetObjectInFront() {
 		RaycastHit hit;
 		GameObject inFront = null;
+		//Debug.DrawRay (transform.position, transform.forward, Color.white, 10.0f);
 		if (Physics.Raycast (new Vector3 (transform.position.x, 0.25f, transform.position.z),
-		                     -Vector3.forward, out hit, interactionDistance)) {
+		                     transform.forward, out hit, interactionDistance)) {
 			if (hit.collider.gameObject.tag.Equals("pickup")) {
 				inFront = hit.collider.gameObject;
-				Debug.Log ("found one");
+				//Debug.Log ("found one");
 			} 
 		}
 		if (touching != null && touching.activeInHierarchy && inFront == null) { // didn't find one in front but are touching an active one
-			if (Vector3.Distance(transform.position, 
-			                     touching.GetComponent<Transform> ().position)
-			    <= interactionDistance) {
+			Vector3 diff = transform.position - touching.GetComponent<Transform> ().position;
+			if (diff.sqrMagnitude
+			    <= (interactionDistance*interactionDistance)) {
 				// close enough, what about the angle?
-				inFront = touching;
+				if (Vector3.Angle(-transform.forward, diff) < 25f) {
+					inFront = touching;
+				}
 			}
 			touching = null;
 		}

@@ -11,19 +11,22 @@ public class AICharacterController : MonoBehaviour {
 	public Transform[] waypoints; // patrol locations
 	private int currentWaypoint = 0; // how far through the patrol are we
 
+	private Transform goingTo; // if going
+
 	private enum State {
 		PATROLLING,
 		LOOKING,
 		CHASING,
-		FOUND
+		FOUND,
+		GOING
 	};
 
-	private State _state; // actual state, this is for debugging (want to observe transitions)
+	private State _state; // actual state, this is for debugging
 	private State state {
 		get { return _state; }
 		set {
 			_state = value;
-			Debug.Log ("AI state = " + value.ToString ());
+			//Debug.Log ("AI state = " + value.ToString ());
 		}
 	}
 
@@ -55,6 +58,9 @@ public class AICharacterController : MonoBehaviour {
 		case State.CHASING:
 			DoChase ();
 			break;
+		case State.GOING:
+			DoGoTo ();
+			break;
 		default:
 			Debug.LogError("Unknown state");
 			break;
@@ -64,6 +70,23 @@ public class AICharacterController : MonoBehaviour {
 		// tell the animator how fast we're going
 		Animator anim = GetComponent<Animator> ();
 		anim.SetFloat ("speed", agent.velocity.magnitude);
+	}
+
+	// call this if you want the agent to go somewhere specific
+	public void GoToLocation(Transform location) {
+		state = State.GOING;
+		goingTo = location;
+		NavMeshAgent agent = GetComponent<NavMeshAgent> ();
+		agent.enabled = true;
+		agent.Resume ();
+		agent.SetDestination (goingTo);
+	}
+
+	void DoGoTo () {
+		NavMeshAgent agent = GetComponent<NavMeshAgent> ();
+		if (agent.destination != goingTo) {
+			agent.SetDestination(goingTo);
+		}
 	}
 
 	// checks if the player is close enough to start chasing, if so changes the state appropriately
@@ -99,7 +122,7 @@ public class AICharacterController : MonoBehaviour {
 		NavMeshAgent agent = GetComponent<NavMeshAgent> ();
 		//Debug.Log (agent.remainingDistance);
 		if ((dest.position - transform.position).sqrMagnitude < 0.25) { // there yet?
-			Debug.Log(String.Format("Agent reached waypoint{0}", currentWaypoint+1));
+			//Debug.Log(String.Format("Agent reached waypoint{0}", currentWaypoint+1));
 			currentWaypoint = (currentWaypoint + 1) % waypoints.Length; // cycle through
 			dest = waypoints [currentWaypoint];
 		}
@@ -133,6 +156,11 @@ public class AICharacterController : MonoBehaviour {
 		NavMeshAgent agent = GetComponent<NavMeshAgent> ();
 		agent.destination = player.position; // just try and get to the player
 		// changing from CHASING to FOUND is handled in OnTriggerEnter
+		if (GetNearbyPickup () != null) { // but it would be cool to be able to distract it
+			state = State.LOOKING;
+			agent.Stop ();
+			agent.enabled = false;
+		}
 	}
 
 	void DoFound () {
@@ -147,15 +175,9 @@ public class AICharacterController : MonoBehaviour {
 	void OnTriggerEnter (Collider other) {
 		if (other.gameObject.tag == "Player") {
 			NavMeshAgent agent = GetComponent<NavMeshAgent> ();
-			if (state == State.PATROLLING || state == State.LOOKING) { // hopefully this is already dealt with, but jic
-				state = State.CHASING;
-				agent.enabled = true;
-				agent.Resume ();
-			} else if (state == State.CHASING) {
 				state = State.FOUND;
 				agent.Stop (); // stop moving
 				agent.enabled = false;
-			}
 		}
 	}
 }
